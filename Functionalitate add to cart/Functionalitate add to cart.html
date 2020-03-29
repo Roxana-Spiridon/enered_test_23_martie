@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Functionalitate add to cart</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            min-width: 800px;
+        }
+
+        .container-cart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-height: 100%;
+            width: 350px;
+            background-color: rgb(238, 235, 235);
+            margin: 0 auto;
+            border-left: 2px solid yellowgreen;
+            overflow: auto;
+        }
+
+        .cart-title {
+            font-size: 20px;
+            color: black;
+            text-transform: uppercase;
+            padding-top: 20px;
+            margin: 0;
+            line-height: 25px;
+            text-align: center;
+            font-weight: 100;
+            width: 100%;
+        }
+
+        .container-catalog {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: calc(100vw - 350px);
+            min-width: 350px;
+            height: 100vh;
+            margin: 0;
+            overflow: auto;
+        }
+
+        .title-catalog {
+            font-size: 25px;
+            color: black;
+            text-transform: uppercase;
+            padding-top: 20px;
+            margin: 0;
+            line-height: 25px;
+            text-align: center;
+            font-weight: 100;
+            width: 100%;
+        }
+
+        .box-container {
+            position: relative;
+            height: 180px;
+            width: 300px;
+            margin: 20px;
+            padding: 0;
+            background: white;
+            box-shadow: 0px 0px 8px 5px #cccccc;
+            border-radius: 5px;
+            user-select: none;
+        }
+
+        img {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            display: inline-block;
+            height: 120px;
+            width: 120px;
+        }
+
+        .product-name {
+            position: absolute;
+            display: inline-block;
+            top: 10px;
+            left: 135px;
+            color: yellowgreen;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .prod-description {
+            position: absolute;
+            display: inline-block;
+            top: 50px;
+            left: 125px;
+            font-weight: 100;
+            font-size: 12px;
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            height: 20px;
+            width: 70px;
+            border-radius: 5px;
+            background-color: yellowgreen;
+            border: 1px solid rgb(155, 207, 50);
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+            margin: 0;
+            text-transform: uppercase;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .clone-box-container .btn {
+            background-color: rgb(243, 104, 40);
+            border: none;
+        }
+
+        .clone-box-container .counter-text {
+            opacity: 1;
+            border: 1px solid rgb(243, 104, 40);
+            border-radius: 2px;
+            padding-left: 3px;
+            padding-right: 3px;
+        }
+
+        .counter-text {
+            position: absolute;
+            display: inline-block;
+            top: 10px;
+            right: 10px;
+            font-size: 15px;
+            color: rgb(243, 104, 40);
+            opacity: 0;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", start);
+        var catalogArray = [];
+        var cartArray = [];
+
+        function start() {
+            // cautam toate elementele cu clasa box-container
+            var n = document.getElementsByClassName("box-container");
+            for (var i = 0; i < n.length; i++) {
+                //introducem elementele cu clasa box-container intr-un array(catalogArray)
+                catalogArray.push(n[i]);
+            }
+            console.log(catalogArray);
+
+            for (var j = 0; j < catalogArray.length; j++) {
+                //parcurgem array-ul si adaugam eventListener pe fiecare element cu clasa box-container
+                catalogArray[j].addEventListener("click", boxContainerClick);
+            }
+        }
+
+        function boxContainerClick(e) {
+            //debugger
+            // daca elementul pe care am dat click are clasa "btn" vom crea o variabila in care retinem referinta elementului din care face parte "btn"
+            if (e.target.className == "btn") {
+                console.log(e.currentTarget, e.currentTarget.id);
+                var boxId = e.currentTarget.id + "-clone"; // "chair1-clone"
+
+                // daca in document nu exista un elemet cu id-ul "boxId", vom crea unul
+                if (document.getElementById(boxId) == null) {
+                    // in variabila clone retinem elementul clonat dupa e.currentTarget (in cazul de fata "box-container")
+                    var clone = e.currentTarget.cloneNode(true);
+                    // dam un id nou clonei create
+                    clone.id = clone.id + "-clone";
+                    // adaugam o clasa noua pe clona - "clone-box-container"
+                    clone.className = "box-container clone-box-container";
+                    // retinem in variabila cart elementul cu id-ul "cart"
+                    var cart = document.getElementById("cart");
+                    //retinem in variabila btn elementul cu clasa ".btn"
+                    var btn = clone.querySelector(".btn");
+                    //modificam textul din interiorul butonului
+                    btn.innerText = "REMOVE";
+                    //retinem in variabila counter elementul cu clasa".counter-text"
+                    var counter = clone.querySelector(".counter-text");
+                    //modificam textul din interiorul counterului (dreapta sus)
+                    counter.innerText = "x " + 1;
+
+                    //adaugam clona in cart 
+                    cart.appendChild(clone);
+                    //facem eventListener pe element (clona in cazul de fata) unde se creeaza acesta
+                    clone.addEventListener("click", removeClone);
+
+                    // daca elementul este deja creat vom incrementa counter-ul din dreapta sus
+                } else {
+                    //retinem in variabila cartClone elementul din document cu id-ul boxId initializat mai sus
+                    var cartClone = document.getElementById(boxId);
+                    // retinem in variabila counter valoarea deja existenta din ".counter-text" din elemntul identificat prin id
+                    var counter = cartClone.querySelector(".counter-text");
+                    console.log(counter, "counter.innerText", counter.innerText);
+                    //eliminam caracterele suplimentare pentru a ramane doar cu cifra
+                    var count = counter.innerText.replace("x ", '');
+                    //transformam stringul in numar cu parseInt si il incrmentam cu 1 
+                    count = parseInt(count) + 1;
+                    //inlocuim textul din counter cu un nou string in care este introdusa valoarea incrementata 
+                    counter.innerText = "x " + count;
+
+                    cartClone.scrollIntoView();
+                }
+            }
+        }
+
+        function removeClone(e) {
+            if (e.target.className == "btn") {
+                var counter = e.currentTarget.querySelector(".counter-text");
+
+                if (counter.innerText == "x 1") {
+                    var cart = document.getElementById("cart");
+                    cart.removeChild(e.currentTarget);
+                } else {
+                    count = counter.innerText.replace("x ", '');
+                    count = parseInt(count) - 1;
+                    counter.innerText = "x " + count;
+                }
+            }
+        }
+    </script>
+
+</head>
+
+<body>
+    
+    <div class="container-catalog">
+        <h1 class="title-catalog">Catalog</h1>
+        <div class="box-container" id="chair1">
+            <img src="chair1.jpg">
+            <h2 class="product-name">Chair 1</h2>
+            <span class="prod-description"> Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis
+                voluptatibus maiores alias consequatur.</span>
+            <div class="btn">
+                Add
+            </div>
+            <span class="counter-text"></span>
+        </div>
+
+        <div class="box-container" id="chair2">
+            <img src="chair2.jpg">
+            <h2 class="product-name">Chair 2</h2>
+            <span class="prod-description"> Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis
+                voluptatibus maiores alias consequatur.</span>
+            <div class="btn">
+                Add
+            </div>
+            <span class="counter-text"></span>
+        </div>
+
+        <div class="box-container" id="chair3">
+            <img src="chair3.jpg">
+            <h2 class="product-name">Chair 3</h2>
+            <span class="prod-description"> Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis
+                voluptatibus maiores alias consequatur.</span>
+            <div class="btn">
+                Add
+            </div>
+            <span class="counter-text"></span>
+        </div>
+
+        <div class="box-container" id="chair4">
+            <img src="chair4.jpg">
+            <h2 class="product-name">Chair 4</h2>
+            <span class="prod-description"> Itaque earum rerum hic tenetur a sapiente delectus, ut aut
+                reiciendis voluptatibus maiores alias consequatur.</span>
+            <div class="btn">
+                Add
+            </div>
+            <span class="counter-text"></span>
+        </div>
+
+        <div class="box-container" id="chair5">
+            <img src="chair5.jpg">
+            <h2 class="product-name">Chair 5</h2>
+            <span class="prod-description"> Itaque earum rerum hic tenetur a sapiente delectus, ut aut
+                reiciendis voluptatibus maiores alias consequatur.</span>
+            <div class="btn">
+                Add
+            </div>
+            <span class="counter-text"></span>
+        </div>
+
+        <div class="box-container" id="chair6">
+            <img src="chair6.jpg">
+            <h2 class="product-name">Chair 6</h2>
+            <span class="prod-description"> Itaque earum rerum hic tenetur a sapiente delectus, ut aut
+                reiciendis voluptatibus maiores alias consequatur.</span>
+            <div class="btn">
+                Add
+            </div>
+            <span class="counter-text"></span>
+        </div>
+
+    </div>
+
+    <div class="container-cart" id="cart">
+        <p class="cart-title">Cart</p>
+    </div>
+</body>
+
+</html>
